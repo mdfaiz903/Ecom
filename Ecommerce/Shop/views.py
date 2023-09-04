@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.views import View
 from .models import product,customer,cart,orderPlaced
+from . forms import CustomerRegistrationForm
+from django.contrib import messages
 # Create your views here.
 class productView(View):
      def get(self,request):
@@ -39,14 +41,34 @@ def orders(request):
 def change_password(request):
  return render(request, 'Shop/changepassword.html')
 
-def lehenga(request):
- return render(request, 'Shop/lehenga.html')
+def lehenga(request,data=None):
+  if data==None:
+   lehengas = product.objects.filter(catagory='L')
+  elif data=='infinity' or data== 'lubnan':
+   lehengas = product.objects.filter(catagory='L').filter(brand=data)
+  elif data == 'below':
+   lehengas = product.objects.filter(catagory='L').filter(discount_price__lt=4000)
+  elif data == 'above':
+   lehengas = product.objects.filter(catagory='L').filter(discount_price__gt=4000)
+   
+  return render(request, 'Shop/lehenga.html',{ 'lehengas' :lehengas})
 
-def login(request):
-     return render(request, 'Shop/login.html')
+# def login(request):
+#      return render(request, 'Shop/login.html')
 
-def customerregistration(request):
- return render(request, 'Shop/customerregistration.html')
+# def customerregistration(request):
+#  return render(request, 'Shop/customerregistration.html')
+class customerregistration(View):
+  def get(self,request):
+    form = CustomerRegistrationForm()
+    return render(request, 'Shop/customerregistration.html',{'form':form})
+  def post(self,request):
+    form = CustomerRegistrationForm(request.POST)
+    if form.is_valid():
+      messages.success(request,'Congratulations registration done.')
+      form.save()
+    return render(request, 'Shop/customerregistration.html',{'form':form})
+
 
 def checkout(request):
  return render(request, 'Shop/checkout.html')
