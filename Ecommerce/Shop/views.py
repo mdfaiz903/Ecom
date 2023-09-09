@@ -38,8 +38,8 @@ def address(request):
 def orders(request):
  return render(request, 'Shop/orders.html')
 
-def change_password(request):
- return render(request, 'Shop/changepassword.html')
+# def change_password(request):
+#  return render(request, 'Shop/changepassword.html')
 
 def lehenga(request,data=None):
   if data==None:
