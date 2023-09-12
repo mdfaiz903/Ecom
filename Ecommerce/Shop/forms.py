@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm,AuthenticationForm,Userna
 from django.contrib.auth.models import User
 from django.utils.translation import gettext,gettext_lazy as _
 from django.contrib.auth import password_validation
-
+from . models import customer
 #Registration 
 
 class CustomerRegistrationForm(UserCreationForm):
@@ -83,3 +83,18 @@ class MySetPasswordForm(SetPasswordForm):
                                    widget=forms.PasswordInput(
                                        attrs={'autocomplete':'current-password','autofocus':True,'class':'form-control'}
                                     ))
+    
+
+
+#For Customar profile view
+class customerprofileViewForm(forms.ModelForm):
+    class Meta:
+        model = customer
+        fields = ['name','division','thana','vill_or_road','zipcode']
+        widgets={
+            'name':forms.TextInput(attrs={'class':'form-control'}),
+            'division':forms.Select(attrs={'class':'form-control'}),
+            'thana':forms.TextInput(attrs={'class':'form-control'}),
+            'vill_or_road':forms.TextInput(attrs={'class':'form-control'}),
+            'zipcode':forms.NumberInput(attrs={'class':'form-control'}),
+        }

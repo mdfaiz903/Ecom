@@ -11,7 +11,7 @@ urlpatterns = [
 
     path('cart/', views.add_to_cart, name='add-to-cart'),
     path('buy/', views.buy_now, name='buy-now'),
-    path('profile/', views.profile, name='profile'),
+    path('profile/', views.profileView.as_view(), name='profile'),
     path('address/', views.address, name='address'),
     path('orders/', views.orders, name='orders'),
     path('accounts/password_change/',auth_v.PasswordChangeView.as_view(template_name='Shop/passwordchange.html',form_class=Mypasswoedchangeform, success_url = '/passwordchangedone/'), name='changepassword'),

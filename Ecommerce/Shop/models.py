@@ -16,7 +16,7 @@ class customer(models.Model):
     division = models.CharField(choices=DIVISION_CHOICES,max_length=50)
     thana = models.CharField(max_length=100)
     vill_or_road = models.CharField(max_length=255)
-    zipcode = models.IntegerField
+    zipcode = models.IntegerField(default=None)
     def __str__(self):
         return str(self.id)
 CATAGORY_CHOICES=(

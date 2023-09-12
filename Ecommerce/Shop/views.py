@@ -1,9 +1,32 @@
 from django.shortcuts import render
 from django.views import View
 from .models import product,customer,cart,orderPlaced
-from . forms import CustomerRegistrationForm
+from . forms import CustomerRegistrationForm,customerprofileViewForm
 from django.contrib import messages
+
 # Create your views here.
+class profileView(View):
+  def get(self, request):
+    form = customerprofileViewForm
+    return render(request, 'Shop/profile.html',{'form':form,'active':'btn-primary'})
+  def post(self,request):
+    form = customerprofileViewForm(request.POST)
+    if form.is_valid():
+      usr = request.user
+      name = form.cleaned_data['name']
+      division = form.cleaned_data['division']
+      thana = form.cleaned_data['thana']
+      vill_or_road = form.cleaned_data['vill_or_road']
+      zipcode = form.cleaned_data['zipcode']
+
+      data = customer(user = usr,name=name,division=division,thana=thana,vill_or_road=vill_or_road,zipcode=zipcode)
+      data.save()
+      messages.success(request,'Congratulations! Profile updated .')
+      return render(request,'Shop/profile.html',{'form':form,'active':'btn-primary'})
+
+
+
+
 class productView(View):
      def get(self,request):
        gentspant = product.objects.filter(catagory = 'GP')
@@ -17,11 +40,7 @@ class productDetailView(View):
     return render(request,'Shop/productdetail.html',{'product':Product})
 
      
-# def home(request):
-#      return render(request, 'Shop/home.html')
 
-# def product_detail(request):
-#  return render(request, 'Shop/productdetail.html')
 
 def add_to_cart(request):
  return render(request, 'Shop/addtocart.html')
@@ -29,17 +48,16 @@ def add_to_cart(request):
 def buy_now(request):
  return render(request, 'Shop/buynow.html')
 
-def profile(request):
- return render(request, 'Shop/profile.html')
+
 
 def address(request):
- return render(request, 'Shop/address.html')
+ data = customer.objects.filter(user= request.user)
+ return render(request, 'Shop/address.html',{'data':data,'active':'btn-primary'})
 
 def orders(request):
  return render(request, 'Shop/orders.html')
 
-# def change_password(request):
-#  return render(request, 'Shop/changepassword.html')
+
 
 def lehenga(request,data=None):
   if data==None:
@@ -53,11 +71,7 @@ def lehenga(request,data=None):
    
   return render(request, 'Shop/lehenga.html',{ 'lehengas' :lehengas})
 
-# def login(request):
-#      return render(request, 'Shop/login.html')
 
-# def customerregistration(request):
-#  return render(request, 'Shop/customerregistration.html')
 class customerregistration(View):
   def get(self,request):
     form = CustomerRegistrationForm()
