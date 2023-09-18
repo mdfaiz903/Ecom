@@ -1,10 +1,79 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.views import View
 from .models import product,customer,cart,orderPlaced
 from . forms import CustomerRegistrationForm,customerprofileViewForm
 from django.contrib import messages
-
+from django.db.models import Q 
+from django.http import JsonResponse
 # Create your views here.
+def plus_cart(request):
+    if request.method == 'GET':
+      prod_id = request.GET['prod_id']
+      c = cart.objects.get(Q(product=prod_id) & Q(user=request.user))
+      
+      c.quantity +=1
+      c.save()
+      amount = 0.0
+      shipping_amount = 100.0
+      cart_product = [p for p in cart.objects.all() if p.user==request.user]
+      for p in cart_product:
+            tempamount = (p.quantity * p.product.discount_price)
+            amount += tempamount  
+            totalamount = amount + shipping_amount
+      data = {
+         'quantity': c.quantity,
+         'amount': amount,
+         'totalamount': totalamount
+      }
+      return JsonResponse(data)
+    
+def minus_cart(request):
+    if request.method == 'GET':
+      prod_id = request.GET['prod_id']
+      c = cart.objects.get(Q(product=prod_id) & Q(user=request.user))
+      
+      c.quantity -=1
+      c.save()
+      amount = 0.0
+      shipping_amount = 100.0
+      cart_product = [p for p in cart.objects.all() if p.user==request.user]
+      for p in cart_product:
+            tempamount = (p.quantity * p.product.discount_price)
+            amount += tempamount  
+            totalamount = amount + shipping_amount
+      data = {
+         'quantity': c.quantity,
+         'amount': amount,
+         'totalamount': totalamount
+      }
+      return JsonResponse(data)
+  
+def add_to_cart(request):
+  user = request.user
+  product_id = request.GET.get('prod_id')
+  Product = product.objects.get(id=product_id)
+  cart(user=user,product=Product).save()
+  return redirect('/cart/')
+
+def show_cart(request):
+   if request.user.is_authenticated:
+      user = request.user
+      Cart = cart.objects.filter(user=user)
+      amount = 0.0
+      shipping_amount = 100.0
+      total = 0.0
+      cart_product = [p for p in cart.objects.all() if p.user==user]
+      if cart_product:
+         for p in cart_product:
+            tempamount = (p.quantity * p.product.discount_price)
+            amount += tempamount  
+            totalamount = amount + shipping_amount
+         return render(request, 'Shop/addtocart.html', {'carts':Cart, 'totalamount':totalamount,'amount':amount })
+      else:
+         return render(request, 'Shop/emptycart.html')
+
+
+
 class profileView(View):
   def get(self, request):
     form = customerprofileViewForm
@@ -41,9 +110,6 @@ class productDetailView(View):
 
      
 
-
-def add_to_cart(request):
- return render(request, 'Shop/addtocart.html')
 
 def buy_now(request):
  return render(request, 'Shop/buynow.html')
