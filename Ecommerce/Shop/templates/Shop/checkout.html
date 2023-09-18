@@ -1,19 +1,25 @@
 {% extends 'Shop/base.html' %}
 {% load static %}
-{% block title %}Buy Now{% endblock title %}
+{% block title %}Check out{% endblock title %}
 {% block main-content %}
 <div class="container">
     <div class="row mt-5">
         <div class="col-sm-6">
             <h4>Order Summary</h4>
             <hr>
-            <div class="card mb-2">
-                <div class="card-body">
-                    <h5>Product: Product 1</h5>
-                    <p>Quantity: 4</p>
-                    <p class="fw-bold">Price: 7500.00</p>
+            {% for item in cart_items %}
+            <div class="card mb-2 flex-row">
+                <img class="card-img-left " style="width:150px;height:150px;" src="{{item.product.product_img.url}}"/>
+                    <div class="card-body">
+                    <h5>Product: {{item.product.title}} </h5>
+                    <p>Quantity: {{item.quantity}} </p>
+                    <p class="fw-bold">Price: {{item.total_cost}}</p>
                 </div>
+            
             </div>
+            {% endfor %}
+            <h4 class='text-end'>Total cost + Shipping charge: {{totalamount}}/- </h4>
+            <hr>
             <small>Term and Condition: Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia, ullam saepe!
                 Iure optio repellat dolor velit, minus rem. Facilis cumque neque numquam laboriosam, accusantium
                 adipisci nisi nihil in et quis?</small>
@@ -21,18 +27,20 @@
         <div class="col-sm-4 offset-sm-1">
             <h4>Select Shipping Address</h4>
             <hr>
-            <form action="">
+            <form action="/paymentDone">
+                {% for ad in add %}
                 <div class="card">
                     <div class="card-body">
-                        <h5>Ripon Mia</h5>
-                        <p>152/2k, Green Road, Dhaka, 1205</p>
+                        <h5> {{ad.name}} </h5>
+                        <p>{{ad.division}},{{ad.thana}},{{ad.vill_or_road}},{{ad.zipcode}},</p>
                     </div>
                 </div>
                 <div class="form-check mt-2 mb-5">
-                    <input class="form-check-input" type="radio" value="">
-                    <label class="form-check-label fw-bold" for="">
-                        Address: 1 </label>
+                    <input class="form-check-input" type="radio" value="{{ad.id}}" name='custid' id="custadd{{forloop.counter}}" >
+                    <label class="form-check-label fw-bold" for="custadd{{forloop.counter}}">
+                        Address: {{forloop.counter}} </label>
                 </div>
+                {% endfor %}
                 <div class="text-end">
                     <button type="submit" class="btn btn-warning mt-3 px-5 fw-bold">Continue</button>
                 </div>

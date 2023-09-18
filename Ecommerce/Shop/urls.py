@@ -13,6 +13,7 @@ urlpatterns = [
     path('cart/', views.show_cart, name='show_cart'),
     path('pluscart/', views.plus_cart, name='plus_cart'),
     path('minuscart/', views.minus_cart, name='minus_cart'),
+    path('removecart/', views.remove_cart, name='remove_cart'),
     
     path('buy/', views.buy_now, name='buy-now'),
     path('profile/', views.profileView.as_view(), name='profile'),
@@ -32,4 +33,5 @@ urlpatterns = [
     path('registration/', views.customerregistration.as_view(), name='customerregistration'),
     path('accounts/logout/', auth_v.LogoutView.as_view(next_page='login'),name='logout'),
     path('checkout/', views.checkout, name='checkout'),
+    path('paymentDone/', views.payment_done, name='paymentDone'),
 ]+ static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

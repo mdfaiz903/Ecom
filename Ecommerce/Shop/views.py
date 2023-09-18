@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.db.models import Q 
 from django.http import JsonResponse
 # Create your views here.
+#plus cart
 def plus_cart(request):
     if request.method == 'GET':
       prod_id = request.GET['prod_id']
@@ -26,7 +27,7 @@ def plus_cart(request):
          'totalamount': totalamount
       }
       return JsonResponse(data)
-    
+#minus cart    
 def minus_cart(request):
     if request.method == 'GET':
       prod_id = request.GET['prod_id']
@@ -47,7 +48,25 @@ def minus_cart(request):
          'totalamount': totalamount
       }
       return JsonResponse(data)
-  
+#Remove cart
+def remove_cart(request):
+    if request.method == 'GET':
+      prod_id = request.GET['prod_id']
+      c = cart.objects.get(Q(product=prod_id) & Q(user=request.user))
+      c.delete()
+      amount = 0.0
+      shipping_amount = 100.0
+      cart_product = [p for p in cart.objects.all() if p.user==request.user]
+      for p in cart_product:
+            tempamount = (p.quantity * p.product.discount_price)
+            amount += tempamount  
+            totalamount = amount + shipping_amount
+      data = {
+         
+         'amount': amount,
+         'totalamount': totalamount
+      }
+      return JsonResponse(data)  
 def add_to_cart(request):
   user = request.user
   product_id = request.GET.get('prod_id')
@@ -121,7 +140,8 @@ def address(request):
  return render(request, 'Shop/address.html',{'data':data,'active':'btn-primary'})
 
 def orders(request):
- return render(request, 'Shop/orders.html')
+ op = orderPlaced.objects.filter(user=request.user)
+ return render(request, 'Shop/orders.html',{'order_place':op})
 
 
 
@@ -151,4 +171,28 @@ class customerregistration(View):
 
 
 def checkout(request):
- return render(request, 'Shop/checkout.html')
+ user = request.user
+ add = customer.objects.filter(user=user)
+ cart_item = cart.objects.filter(user=user)
+ amount = 0.0
+ shipping_amount = 100.0
+ total = 0.0
+ cart_product = [p for p in cart.objects.all() if p.user==user]
+ if cart_product:
+    for p in cart_product:
+      tempamount = (p.quantity * p.product.discount_price)
+      amount += tempamount  
+    totalamount = amount + shipping_amount
+ return render(request, 'Shop/checkout.html',{'totalamount':totalamount,'add':add,'cart_items':cart_item})
+
+
+def payment_done(request):
+   user = request.user
+   custid = request.GET.get('custid')
+   customers = customer.objects.get(id=custid)
+   carts = cart.objects.filter(user=user)
+   for c in carts:
+      orderPlaced(user=user, customer=customers, product = c.product, quantity = c.quantity).save()
+      c.delete()
+
+   return redirect('orders') 
